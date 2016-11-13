@@ -1,23 +1,16 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-
-version = "2.0.2" // 修改为你的版本号
-
-def siteUrl = 'https://github.com/EvilBT/Retrofit-Agera-Call-Adapter' // 修改为你的项目的主页
-def gitUrl = 'https://github.com/EvilBT/Retrofit-Agera-Call-Adapter.git' // 修改为你的Git仓库的url
-
-group = "xyz.zpayh.retrofit2" // Maven Group ID for the artifact，一般填你唯一的包名
-
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
     buildTypes {
         release {
@@ -27,136 +20,13 @@ android {
     }
 }
 
-install {
-
-    repositories.mavenInstaller {
-
-// This generates POM.xml with proper parameters
-
-        pom {
-
-            project {
-
-                packaging 'aar'
-
-// Add your description here
-
-                name 'retrofitageracalladapter' //项目描述
-
-                url siteUrl
-
-// Set your license
-
-                licenses {
-
-                    license {
-
-                        name 'The Apache Software License, Version 2.0'
-
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-
-                    }
-
-                }
-
-                developers {
-
-                    developer {
-
-                        id 'sherlock' //填写的一些基本信息
-
-                        name 'sherlock'
-
-                        email 'ch_zh_p@qq.com'
-
-                    }
-
-                }
-
-                scm {
-
-                    connection gitUrl
-
-                    developerConnection gitUrl
-
-                    url siteUrl
-
-                }
-
-            }
-
-        }
-
-    }
-
-}
-
-task sourcesJar(type: Jar) {
-
-    from android.sourceSets.main.java.srcDirs
-
-    classifier = 'sources'
-
-}
-
-task javadoc(type: Javadoc) {
-
-    source = android.sourceSets.main.java.srcDirs
-
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-
-    classifier = 'javadoc'
-
-    from javadoc.destinationDir
-
-}
-
-artifacts {
-
-    archives javadocJar
-
-    archives sourcesJar
-
-}
-
-Properties properties = new Properties()
-
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-
-    user = properties.getProperty("bintray.user")
-
-    key = properties.getProperty("bintray.apikey")
-
-    configurations = ['archives']
-
-    pkg {
-
-        repo = "maven"
-
-        name = "retrofit-agera-call-adapter" //发布到JCenter上的项目名字
-
-        websiteUrl = siteUrl
-
-        vcsUrl = gitUrl
-
-        licenses = ["Apache-2.0"]
-
-        publish = true
-
-    }
-
-}
-
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.0.0'
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:support-annotations:23.4.0'
-    provided 'com.squareup.retrofit2:retrofit:2.0.2'
-    provided 'com.google.android.agera:agera:1.1.0-beta2'
+    provided 'com.squareup.retrofit2:retrofit:2.1.0'
+    provided 'com.google.android.agera:agera:1.2.0-beta3'
 }

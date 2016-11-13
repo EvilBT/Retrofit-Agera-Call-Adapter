@@ -2,6 +2,7 @@ package xyz.zpayh.retrofit2.adapter.agera;
 
 import android.support.annotation.NonNull;
 
+import com.google.android.agera.Repository;
 import com.google.android.agera.Result;
 import com.google.android.agera.Supplier;
 
@@ -16,7 +17,12 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 /**
- *
+ * 文 件 名: AgeraCallAdapterFactory
+ * 创 建 人: 陈志鹏
+ * 创建日期: 2016/11/11 22:26
+ * 邮   箱: ch_zh_p@qq.com
+ * 修改时间:
+ * 修改备注:
  */
 public class AgeraCallAdapterFactory extends CallAdapter.Factory{
 
@@ -28,12 +34,19 @@ public class AgeraCallAdapterFactory extends CallAdapter.Factory{
     public CallAdapter<?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
         Class<?> rawType = getRawType(returnType);
 
-        if (rawType != SupplierResult.class && rawType != Supplier.class){
+        if (rawType != SupplierResult.class
+                && rawType != Supplier.class
+                && rawType != Repository.class
+                && rawType != ResultRepository.class){
             return null;
         }
 
         if ( !(returnType instanceof ParameterizedType)){
-            final String className = rawType == SupplierResult.class ? "SupplierResult" : "Supplier";
+            final String className =
+                    rawType == SupplierResult.class ? "SupplierResult" :
+                    rawType == Supplier.class ? "Supplier" :
+                    rawType == Repository.class ? "Repository" :
+                    "ResultRepository";
             final String message = className+" return type must be parameterized"
                     + " as "+className+"<Foo> or "+className+"<? extends Foo>";
             throw new IllegalStateException(message);
@@ -44,11 +57,46 @@ public class AgeraCallAdapterFactory extends CallAdapter.Factory{
             return getSupplierResultCallAdapter(returnType);
         }
 
-        return getSupplierCallAdapter(returnType);
-       /* Type innerType = getParameterUpperBound(0, (ParameterizedType) returnType);
+        if (rawType == Supplier.class) {
+            return getSupplierCallAdapter(returnType);
+        }
 
-        CallAdapter<Reservoir<?>> callAdapter = getReservoirCallAdapter(returnType);//new ReservoirSimpleCallAdapter(innerType);
-        return callAdapter;*/
+        if (rawType == ResultRepository.class){
+            return getResultRepositoryCallAdapter(returnType);
+        }
+
+        return getRepositoryCallAdapter(returnType);
+    }
+
+    private CallAdapter<?> getRepositoryCallAdapter(Type returnType) {
+        Type repositoryType = getParameterUpperBound(0, (ParameterizedType) returnType);
+        Class<?> rowRepositoryType = getRawType(repositoryType);
+        if (rowRepositoryType != Result.class) {
+            return null;
+        }
+
+        if (!(repositoryType instanceof ParameterizedType)){
+            throw new IllegalStateException("Result must be parameterized"
+                    + " as Result<Foo> or Result<? extends Foo>");
+        }
+
+        return getResultRepositoryCallAdapter(repositoryType);
+    }
+
+    private CallAdapter<?> getResultRepositoryCallAdapter(Type returnType) {
+        Type resultRepositoryType = getParameterUpperBound(0, (ParameterizedType) returnType);
+        Class<?> rowResultRepositoryType = getRawType(resultRepositoryType);
+
+        if (rowResultRepositoryType == Response.class){
+            if (!(resultRepositoryType instanceof ParameterizedType)){
+                throw new IllegalStateException("Response must be parameterized"
+                        + " as Response<Foo> or Response<? extends Foo>");
+            }
+            Type responseType = getParameterUpperBound(0, (ParameterizedType) resultRepositoryType);
+            return new ResponseResultRepositoryCallAdapter(responseType);
+        }
+
+        return new ResultRepositoryCallAdapter(resultRepositoryType);
     }
 
     private CallAdapter<?> getSupplierCallAdapter(Type returnType) {
