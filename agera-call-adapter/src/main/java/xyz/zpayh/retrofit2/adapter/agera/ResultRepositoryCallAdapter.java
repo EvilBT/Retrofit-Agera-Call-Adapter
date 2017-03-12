@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 
 import retrofit2.Call;
 import retrofit2.CallAdapter;
+import zyx.zpayh.retrofit2.adapter.agera.R;
 
 /**
  * 文 件 名: ResultRepositoryCallAdapter
@@ -14,7 +15,7 @@ import retrofit2.CallAdapter;
  * 修改备注:
  */
 
-final class ResultRepositoryCallAdapter implements CallAdapter<ResultRepository<?>>{
+final class ResultRepositoryCallAdapter implements CallAdapter<R,ResultRepository<R>>{
 
     private final Type mType;
 
@@ -28,7 +29,7 @@ final class ResultRepositoryCallAdapter implements CallAdapter<ResultRepository<
     }
 
     @Override
-    public <R> ResultRepository<R> adapt(Call<R> call) {
+    public ResultRepository<R> adapt(Call<R> call) {
         return new SimpleResultRepository<>(call);
     }
 }

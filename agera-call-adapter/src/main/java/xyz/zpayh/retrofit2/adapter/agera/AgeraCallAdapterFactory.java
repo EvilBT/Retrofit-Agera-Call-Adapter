@@ -15,6 +15,7 @@ import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import zyx.zpayh.retrofit2.adapter.agera.R;
 
 /**
  * 文 件 名: AgeraCallAdapterFactory
@@ -31,7 +32,7 @@ public class AgeraCallAdapterFactory extends CallAdapter.Factory{
     }
 
     @Override
-    public CallAdapter<?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
+    public CallAdapter<?,?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
         Class<?> rawType = getRawType(returnType);
 
         if (rawType != SupplierResult.class
@@ -68,7 +69,7 @@ public class AgeraCallAdapterFactory extends CallAdapter.Factory{
         return getRepositoryCallAdapter(returnType);
     }
 
-    private CallAdapter<?> getRepositoryCallAdapter(Type returnType) {
+    private CallAdapter<?,?> getRepositoryCallAdapter(Type returnType) {
         Type repositoryType = getParameterUpperBound(0, (ParameterizedType) returnType);
         Class<?> rowRepositoryType = getRawType(repositoryType);
         if (rowRepositoryType != Result.class) {
@@ -83,7 +84,7 @@ public class AgeraCallAdapterFactory extends CallAdapter.Factory{
         return getResultRepositoryCallAdapter(repositoryType);
     }
 
-    private CallAdapter<?> getResultRepositoryCallAdapter(Type returnType) {
+    private CallAdapter<?,?> getResultRepositoryCallAdapter(Type returnType) {
         Type resultRepositoryType = getParameterUpperBound(0, (ParameterizedType) returnType);
         Class<?> rowResultRepositoryType = getRawType(resultRepositoryType);
 
@@ -99,7 +100,7 @@ public class AgeraCallAdapterFactory extends CallAdapter.Factory{
         return new ResultRepositoryCallAdapter(resultRepositoryType);
     }
 
-    private CallAdapter<?> getSupplierCallAdapter(Type returnType) {
+    private CallAdapter<?,?> getSupplierCallAdapter(Type returnType) {
         Type supplierType = getParameterUpperBound(0, (ParameterizedType) returnType);
         Class<?> rowSupplierType = getRawType(supplierType);
         if (rowSupplierType != Result.class){
@@ -114,7 +115,7 @@ public class AgeraCallAdapterFactory extends CallAdapter.Factory{
         return getSupplierResultCallAdapter(supplierType);
     }
 
-    private CallAdapter<?> getSupplierResultCallAdapter(Type returnType) {
+    private CallAdapter<?,?> getSupplierResultCallAdapter(Type returnType) {
         Type supplierResultType = getParameterUpperBound(0, (ParameterizedType) returnType);
         Class<?> rowSupplierResultType = getRawType(supplierResultType);
         if (rowSupplierResultType == Response.class){
@@ -128,8 +129,7 @@ public class AgeraCallAdapterFactory extends CallAdapter.Factory{
         return new SupplierResultSimpleCallAdapter(supplierResultType);
     }
 
-    static final class SupplierResultResponseCallAdapter implements CallAdapter<SupplierResult<?>>{
-
+    static final class SupplierResultResponseCallAdapter implements CallAdapter<R,SupplierResult<Response<R>>>{
         private final Type mType;
 
         public SupplierResultResponseCallAdapter(Type type) {
@@ -142,12 +142,12 @@ public class AgeraCallAdapterFactory extends CallAdapter.Factory{
         }
 
         @Override
-        public <R> SupplierResult<Response<R>> adapt(Call<R> call) {
+        public SupplierResult<Response<R>> adapt(Call<R> call) {
             return new ResponseSupplierResult<>(call);
         }
     }
 
-    static final class SupplierResultSimpleCallAdapter implements CallAdapter<SupplierResult<?>>{
+    static final class SupplierResultSimpleCallAdapter implements CallAdapter<R,SupplierResult<R>>{
         private final Type mType;
 
         public SupplierResultSimpleCallAdapter(Type type) {
@@ -160,7 +160,7 @@ public class AgeraCallAdapterFactory extends CallAdapter.Factory{
         }
 
         @Override
-        public <R> SupplierResult<R> adapt(Call<R> call) {
+        public SupplierResult<R> adapt(Call<R> call) {
             return new SimpleSupplierResult<>(call);
         }
     }
